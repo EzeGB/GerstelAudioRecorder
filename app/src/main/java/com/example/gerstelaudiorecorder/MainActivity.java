@@ -2,6 +2,8 @@ package com.example.gerstelaudiorecorder;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,11 +17,19 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.gerstelaudiorecorder.databinding.ActivityMainBinding;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private static final int REQUEST_CODE = 200;
     private String [] permissions =  new String[]{Manifest.permission.RECORD_AUDIO};
-    private boolean permissionGranted = false;
+    private boolean permissionGranted, isRecording, isPaused = false;
+
+    private MediaRecorder recorder;
+    private String dirPath, filename;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +51,39 @@ public class MainActivity extends AppCompatActivity {
         binding.btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startRecording();
+                if (isPaused){
+                    resumeRecording();
+                } else if (isRecording) {
+                    pauseRecording();
+                } else {
+                    startRecording();
+                }
             }
         });
+
+        binding.btnList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                recorder.stop();
+                isRecording= false;
+                isPaused = false;
+                binding.btnRecord.setImageResource(R.drawable.ic_record);
+            }
+        });
+    }
+
+    private void pauseRecording() {
+        recorder.pause();
+        isRecording= false;
+        isPaused = true;
+        binding.btnRecord.setImageResource(R.drawable.ic_record);
+    }
+
+    private void resumeRecording() {
+        recorder.resume();
+        isRecording= true;
+        isPaused = false;
+        binding.btnRecord.setImageResource(R.drawable.ic_pause);
     }
 
     @Override
@@ -59,7 +99,28 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionGranted){
             ActivityCompat.requestPermissions(this, permissions,REQUEST_CODE);
         } else {
+            //start recording
 
+            recorder = new MediaRecorder();
+            dirPath = Objects.requireNonNull(this.getExternalCacheDir()).getAbsolutePath();
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.DD_hh.mm.ss");
+            String date = simpleDateFormat.format(new Date());
+            filename = "audio_record_"+date;
+
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            recorder.setOutputFile(dirPath+filename+".mp3");
+
+            try {
+                recorder.prepare();
+            } catch (IOException e){}
+
+            recorder.start();
+            isRecording = true;
+            isPaused = false;
+            binding.btnRecord.setImageResource(R.drawable.ic_pause);
         }
     }
 }
