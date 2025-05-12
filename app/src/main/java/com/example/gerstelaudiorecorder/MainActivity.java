@@ -72,20 +72,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void pauseRecording() {
-        recorder.pause();
-        isRecording= false;
-        isPaused = true;
-        binding.btnRecord.setImageResource(R.drawable.ic_record);
-    }
-
-    private void resumeRecording() {
-        recorder.resume();
-        isRecording= true;
-        isPaused = false;
-        binding.btnRecord.setImageResource(R.drawable.ic_pause);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -111,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            recorder.setAudioSamplingRate(44100);
+            recorder.setAudioEncodingBitRate(320000);
             recorder.setOutputFile(dirPath+filename+".mp3");
 
             try {
@@ -122,5 +110,19 @@ public class MainActivity extends AppCompatActivity {
             isPaused = false;
             binding.btnRecord.setImageResource(R.drawable.ic_pause);
         }
+    }
+
+    private void pauseRecording() {
+        recorder.pause();
+        isRecording= false;
+        isPaused = true;
+        binding.btnRecord.setImageResource(R.drawable.ic_record);
+    }
+
+    private void resumeRecording() {
+        recorder.resume();
+        isRecording= true;
+        isPaused = false;
+        binding.btnRecord.setImageResource(R.drawable.ic_pause);
     }
 }
