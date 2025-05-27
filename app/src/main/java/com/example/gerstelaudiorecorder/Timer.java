@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 public class Timer{
 
     interface OnTimerTickListener {
-        public void onTimerTick(String duration);
+        public void onTimerTick(String formatedDuration, long duration);
     }
     private Handler handler = HandlerCompat.createAsync(Looper.getMainLooper());
     private Runnable runnable;
@@ -22,7 +22,7 @@ public class Timer{
         runnable = ()-> {
             duration+=delay;
             handler.postDelayed(runnable,delay);
-            listener.onTimerTick(format());
+            listener.onTimerTick(format(),duration);
     };
     }
 

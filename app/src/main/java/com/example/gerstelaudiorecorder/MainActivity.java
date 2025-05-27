@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
                 recorder.stop();
                 timer.stop();
                 binding.tvTimer.setText("00:00.00");
+                binding.waveforView.resetAmplitudes();
+                binding.waveforView.invalidate();
                 isRecording= false;
                 isPaused = false;
                 binding.btnRecord.setImageResource(R.drawable.ic_record);
@@ -145,7 +147,10 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
     }
 
     @Override
-    public void onTimerTick(String duration) {
-        binding.tvTimer.setText(duration);
+    public void onTimerTick(String formatedDuration,long duration) {
+        binding.tvTimer.setText(formatedDuration);
+        if (duration%100==0){
+            binding.waveforView.addAmplitude((float) recorder.getMaxAmplitude());
+        }
     }
 }
