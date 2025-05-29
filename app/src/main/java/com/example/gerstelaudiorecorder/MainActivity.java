@@ -1,5 +1,9 @@
 package com.example.gerstelaudiorecorder;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.widget.Toast.*;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -9,6 +13,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -20,8 +25,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.gerstelaudiorecorder.databinding.ActivityMainBinding;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 
@@ -33,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
 
     private MediaRecorder recorder;
     private String dirPath, filename;
+    private ArrayList<Float> registeredAmplitudes;
     private Timer timer;
     private Vibrator vibrator;
     @Override
@@ -71,20 +79,29 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
                 }
             }
         });
-
+        binding.btnDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopRecording();
+                Toast.makeText(MainActivity.this,"Record saved", LENGTH_SHORT).show();
+            }
+        });
         binding.btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                recorder.stop();
-                timer.stop();
-                binding.tvTimer.setText("00:00.00");
-                binding.waveforView.resetAmplitudes();
-                binding.waveforView.invalidate();
-                isRecording= false;
-                isPaused = false;
-                binding.btnRecord.setImageResource(R.drawable.ic_record);
+                Toast.makeText(MainActivity.this,"List Button", LENGTH_SHORT).show();
             }
         });
+        binding.btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteRecording();
+                Toast.makeText(MainActivity.this,"Record deleted", LENGTH_SHORT).show();
+            }
+        });
+
+        binding.btnDelete.setEnabled(false);
+        binding.btnDelete.setImageResource(R.drawable.ic_delete_disabled);
     }
 
     @Override
@@ -120,10 +137,15 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             timer.start();
             isRecording = true;
             isPaused = false;
+
             binding.btnRecord.setImageResource(R.drawable.ic_pause);
+            binding.btnList.setVisibility(GONE);
+            binding.btnDone.setVisibility(VISIBLE);
+            binding.btnDone.setEnabled(true);
+            binding.btnDelete.setEnabled(true);
+            binding.btnDelete.setImageResource(R.drawable.ic_delete);
         }
     }
-
     private void pauseRecording() {
         recorder.pause();
         timer.pause();
@@ -131,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         isPaused = true;
         binding.btnRecord.setImageResource(R.drawable.ic_record);
     }
-
     private void resumeRecording() {
         recorder.resume();
         timer.start();
@@ -139,13 +160,35 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         isPaused = false;
         binding.btnRecord.setImageResource(R.drawable.ic_pause);
     }
+    private void stopRecording(){
+        recorder.stop();
+        recorder.release();
+        timer.stop();
+        isRecording= false;
+        isPaused = false;
+
+        binding.tvTimer.setText("00:00.00");
+        registeredAmplitudes = binding.waveforView.resetAmplitudes();
+
+        binding.btnRecord.setImageResource(R.drawable.ic_record);
+        binding.btnList.setVisibility(VISIBLE);
+        binding.btnDone.setVisibility(GONE);
+        binding.btnDone.setEnabled(false);
+        binding.btnDelete.setEnabled(false);
+        binding.btnDelete.setImageResource(R.drawable.ic_delete_disabled);
+    }
+    private void deleteRecording(){
+        stopRecording();
+        File fileDeleted = new File(dirPath+createFilename()+".mp3");
+        fileDeleted.deleteOnExit();
+    }
+
     private String createFilename(){
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.DD_hh.mm.ss");
         String date = simpleDateFormat.format(new Date());
         filename = "audio_record_"+date;
         return filename;
     }
-
     @Override
     public void onTimerTick(String formatedDuration,long duration) {
         binding.tvTimer.setText(formatedDuration);

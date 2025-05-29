@@ -54,9 +54,12 @@ public class WaveformView extends View {
         invalidate();
     }
 
-    public void resetAmplitudes(){
+    public ArrayList<Float> resetAmplitudes(){
+        ArrayList<Float> registeredAmplitudes = amplitudes;
         amplitudes.clear();
         spikes.clear();
+        invalidate();
+        return registeredAmplitudes;
     }
 
     @Override
