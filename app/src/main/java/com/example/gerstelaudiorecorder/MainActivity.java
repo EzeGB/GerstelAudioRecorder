@@ -4,6 +4,9 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.*;
 
+import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
+import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -13,6 +16,7 @@ import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -24,6 +28,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.gerstelaudiorecorder.databinding.ActivityMainBinding;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,12 +42,13 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
     private static final int REQUEST_CODE = 200;
     private String [] permissions =  new String[]{Manifest.permission.RECORD_AUDIO};
     private boolean permissionGranted, isRecording, isPaused = false;
-
     private MediaRecorder recorder;
     private String dirPath, filename;
+    private File currentFile;
     private ArrayList<Float> registeredAmplitudes;
     private Timer timer;
     private Vibrator vibrator;
+    private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,10 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         if (!permissionGranted){
             ActivityCompat.requestPermissions(this, permissions,REQUEST_CODE);
         }
+
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet);
+        bottomSheetBehavior.setPeekHeight(0);
+        bottomSheetBehavior.setState(STATE_COLLAPSED);
 
         timer = new Timer(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -83,7 +93,10 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             @Override
             public void onClick(View view) {
                 stopRecording();
-                Toast.makeText(MainActivity.this,"Record saved", LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this,"Record saved", LENGTH_SHORT).show();
+                bottomSheetBehavior.setState(STATE_EXPANDED);
+                binding.bottomSheetBG.setVisibility(VISIBLE);
+                binding.bottomSheet.filenameInput.setText(filename);
             }
         });
         binding.btnList.setOnClickListener(new View.OnClickListener() {
@@ -95,13 +108,29 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         binding.btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deleteRecording();
-                Toast.makeText(MainActivity.this,"Record deleted", LENGTH_SHORT).show();
+                boolean deleted;
+                deleted = deleteRecording();
+                if (deleted){
+                    Toast.makeText(MainActivity.this,"Record deleted", LENGTH_SHORT).show();
+                }
             }
         });
 
         binding.btnDelete.setEnabled(false);
         binding.btnDelete.setImageResource(R.drawable.ic_delete_disabled);
+
+        binding.bottomSheet.btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //HEREEEEEEEEEEE
+            }
+        });
+        binding.bottomSheet.btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     @Override
@@ -118,16 +147,18 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             ActivityCompat.requestPermissions(this, permissions,REQUEST_CODE);
         } else {
             //start recording
+            dirPath = Objects.requireNonNull(this.getExternalCacheDir()).getAbsolutePath();
+            currentFile = new File(dirPath+createFilename()+".mp3");
 
             recorder = new MediaRecorder();
-            dirPath = Objects.requireNonNull(this.getExternalCacheDir()).getAbsolutePath();
-
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             recorder.setAudioSamplingRate(44100);
             recorder.setAudioEncodingBitRate(320000);
-            recorder.setOutputFile(dirPath+createFilename()+".mp3");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                recorder.setOutputFile(currentFile);
+            }
 
             try {
                 recorder.prepare();
@@ -177,10 +208,9 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         binding.btnDelete.setEnabled(false);
         binding.btnDelete.setImageResource(R.drawable.ic_delete_disabled);
     }
-    private void deleteRecording(){
+    private boolean deleteRecording(){
         stopRecording();
-        File fileDeleted = new File(dirPath+createFilename()+".mp3");
-        fileDeleted.deleteOnExit();
+        return currentFile.delete();
     }
 
     private String createFilename(){
