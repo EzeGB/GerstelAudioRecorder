@@ -6,6 +6,7 @@ import static android.widget.Toast.*;
 
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED;
+import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN;
 
 import android.Manifest;
 import android.content.Context;
@@ -13,9 +14,12 @@ import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -70,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet);
         bottomSheetBehavior.setPeekHeight(0);
         bottomSheetBehavior.setState(STATE_COLLAPSED);
+        binding.bottomSheet.bottomSheet.setVisibility(GONE);
 
         timer = new Timer(this);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -93,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             @Override
             public void onClick(View view) {
                 stopRecording();
-                //Toast.makeText(MainActivity.this,"Record saved", LENGTH_SHORT).show();
+                binding.bottomSheet.bottomSheet.setVisibility(VISIBLE);
                 bottomSheetBehavior.setState(STATE_EXPANDED);
                 binding.bottomSheetBG.setVisibility(VISIBLE);
                 binding.bottomSheet.filenameInput.setText(filename);
@@ -109,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             @Override
             public void onClick(View view) {
                 boolean deleted;
+                stopRecording();
                 deleted = deleteRecording();
                 if (deleted){
                     Toast.makeText(MainActivity.this,"Record deleted", LENGTH_SHORT).show();
@@ -122,13 +128,22 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         binding.bottomSheet.btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //HEREEEEEEEEEEE
+                deleteRecording();
+                dismissBottomSheet();
             }
         });
         binding.bottomSheet.btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                dismissBottomSheet();
+                saveRecording();
+                Toast.makeText(MainActivity.this,"Record saved", LENGTH_SHORT).show();
+            }
+        });
+        binding.bottomSheetBG.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.bottomSheet.btnCancel.callOnClick();
             }
         });
     }
@@ -208,8 +223,15 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         binding.btnDelete.setEnabled(false);
         binding.btnDelete.setImageResource(R.drawable.ic_delete_disabled);
     }
+    private void saveRecording(){
+        String newFileName = binding.bottomSheet.filenameInput.getText().toString();
+        if (!newFileName.equals(filename)){
+            File newFile = new File(dirPath+newFileName+".mp3");
+            currentFile.renameTo(newFile);
+        }
+
+    }
     private boolean deleteRecording(){
-        stopRecording();
         return currentFile.delete();
     }
 
@@ -219,11 +241,26 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         filename = "audio_record_"+date;
         return filename;
     }
+    private void dismissBottomSheet(){
+        binding.bottomSheet.bottomSheet.setVisibility(GONE);
+        binding.bottomSheetBG.setVisibility(GONE);
+        hideKeyboard(binding.bottomSheet.filenameInput);
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(()->{
+            bottomSheetBehavior.setState(STATE_COLLAPSED);
+        },100);
+    }
+
     @Override
     public void onTimerTick(String formatedDuration,long duration) {
         binding.tvTimer.setText(formatedDuration);
         if (duration%100==0){
             binding.waveforView.addAmplitude((float) recorder.getMaxAmplitude());
         }
+    }
+    public void hideKeyboard(View view){
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(),0);
     }
 }
