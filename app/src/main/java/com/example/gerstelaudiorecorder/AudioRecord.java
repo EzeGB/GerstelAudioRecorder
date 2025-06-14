@@ -51,4 +51,10 @@ public class AudioRecord {
     public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
     }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 }

@@ -30,16 +30,24 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.room.Room;
 
 import com.example.gerstelaudiorecorder.databinding.ActivityMainBinding;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import kotlinx.coroutines.GlobalScope;
 
 public class MainActivity extends AppCompatActivity implements Timer.OnTimerTickListener {
     ActivityMainBinding binding;
@@ -48,18 +56,22 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
     private boolean permissionGranted, isRecording, isPaused = false;
     private MediaRecorder recorder;
     private String dirPath, filename;
+    private String duration;
     private File currentFile;
     private ArrayList<Float> registeredAmplitudes;
     private Timer timer;
     private Vibrator vibrator;
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
+    private AppDatabase database;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -70,6 +82,12 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         if (!permissionGranted){
             ActivityCompat.requestPermissions(this, permissions,REQUEST_CODE);
         }
+
+        database = Room.databaseBuilder(
+                this,
+                AppDatabase.class,
+                "audioRecords"
+        ).build();
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet);
         bottomSheetBehavior.setPeekHeight(0);
@@ -230,6 +248,25 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             currentFile.renameTo(newFile);
         }
 
+        String filePath = dirPath+newFileName+".mp3";
+        Long timestamp = (new Date()).getTime();
+        String ampsPath = dirPath+newFileName;
+
+        try {
+            FileOutputStream fos = new FileOutputStream(ampsPath);
+            ObjectOutputStream out = new ObjectOutputStream(fos);
+            out.writeObject(registeredAmplitudes);
+            fos.close();
+            out.close();
+        } catch (IOException e){}
+
+        AudioRecord record = new AudioRecord(newFileName,filePath,duration,ampsPath,timestamp);
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(()->{
+            database.audioRecordDao().insert(record);
+        });
+        executorService.shutdown();
     }
     private boolean deleteRecording(){
         return currentFile.delete();
@@ -258,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         if (duration%100==0){
             binding.waveforView.addAmplitude((float) recorder.getMaxAmplitude());
         }
+        this.duration = formatedDuration.substring(0,formatedDuration.length()-3);
     }
     public void hideKeyboard(View view){
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
