@@ -6,6 +6,8 @@
         <item name="android:textColor">@color/colorTextNight</item>
         <item name="rippleColor">@color/grayDarkDisabled</item>
         <item name="backgroundColor">@color/nightWhite</item>
+        <item name="android:fillColor">@color/grayDark</item>
+        <item name="itemShapeFillColor">@color/gray</item>
     </style>
     <style name="TextLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="android:layout_marginTop">20dp</item>

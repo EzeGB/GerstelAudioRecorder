@@ -10,6 +10,7 @@ import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Build;
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
         binding.btnList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MainActivity.this,"List Button", LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, GalleryActivity.class));
             }
         });
         binding.btnDelete.setOnClickListener(new View.OnClickListener() {
