@@ -10,13 +10,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.ViewHolder> {
 
-    List<AudioRecord> records;
-    public RecordingAdapter(List<AudioRecord> records){
+    ArrayList<AudioRecord> records;
+    public RecordingAdapter(ArrayList<AudioRecord> records){
         this.records=records;
     }
 
