@@ -1,6 +1,7 @@
 package com.example.gerstelaudiorecorder;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GalleryActivity extends AppCompatActivity {
+public class GalleryActivity extends AppCompatActivity implements OnItemClickListener {
 
     private ArrayList<AudioRecord> records;
     private RecordingAdapter myAdapter;
@@ -35,7 +36,7 @@ public class GalleryActivity extends AppCompatActivity {
 
         records = new ArrayList<>();
         database = Room.databaseBuilder(this,AppDatabase.class,"audioRecords").build();
-        myAdapter = new RecordingAdapter(records);
+        myAdapter = new RecordingAdapter(records,this);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setAdapter(myAdapter);
@@ -53,5 +54,15 @@ public class GalleryActivity extends AppCompatActivity {
         });
         executorService.shutdown();
         myAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void OnItemClickListener(int position) {
+        Toast.makeText(this,"Simple Click",Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void OnLongItemClickListener(int position) {
+        Toast.makeText(this,"Long Click",Toast.LENGTH_SHORT).show();
     }
 }

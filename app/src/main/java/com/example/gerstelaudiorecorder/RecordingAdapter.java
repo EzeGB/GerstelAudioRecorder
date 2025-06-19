@@ -17,15 +17,17 @@ import java.util.List;
 public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.ViewHolder> {
 
     ArrayList<AudioRecord> records;
-    public RecordingAdapter(ArrayList<AudioRecord> records){
+    OnItemClickListener listener;
+    public RecordingAdapter(ArrayList<AudioRecord> records, OnItemClickListener listener){
         this.records=records;
+        this.listener=listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.itemview_layout,parent,false);
-        return new ViewHolder(view);
+        return new ViewHolder(view,listener);
     }
 
     @Override
@@ -45,16 +47,36 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.View
         holder.tvMeta.setText(String.format("%s%s", record.getDuration(), strDate));
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
-        View itemView;
+    public static class ViewHolder extends RecyclerView.ViewHolder implements  View.OnLongClickListener, View.OnClickListener {
         TextView tvFilename, tvMeta;
         CheckBox checkBox;
-        public ViewHolder(@NonNull View itemView) {
+        OnItemClickListener listener;
+        public ViewHolder(@NonNull View itemView, OnItemClickListener listener) {
             super(itemView);
-            this.itemView=itemView;
+            this.listener=listener;
+
             this.tvFilename=this.itemView.findViewById(R.id.tvFilename);
             this.tvMeta=this.itemView.findViewById(R.id.tvMeta);
             this.checkBox=this.itemView.findViewById(R.id.checkbox);
+
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            if (position!=RecyclerView.NO_POSITION){
+                listener.OnItemClickListener(position);
+            }
+        }
+        @Override
+        public boolean onLongClick(View view) {
+            int position = getAdapterPosition();
+            if (position!=RecyclerView.NO_POSITION){
+                listener.OnLongItemClickListener(position);
+            }
+            return true;
         }
     }
 }
