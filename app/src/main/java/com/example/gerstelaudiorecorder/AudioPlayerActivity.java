@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +21,9 @@ import java.io.IOException;
 public class AudioPlayerActivity extends AppCompatActivity {
     ActivityAudioPlayerBinding binding;
     private MediaPlayer mediaPlayer;
+    Handler seekBarHandler;
+    Runnable seekBarRunnable;
+    Long seekBarDelay = 500L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +51,30 @@ public class AudioPlayerActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
-        playPausePlayer();
+        seekBarHandler = new Handler(Looper.getMainLooper());
+        seekBarRunnable = new Runnable() {
+            @Override
+            public void run() {
+                binding.seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                seekBarHandler.postDelayed(seekBarRunnable,seekBarDelay);
+            }
+        };
 
         binding.btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 playPausePlayer();
+            }
+        });
+
+        playPausePlayer();
+        binding.seekBar.setMax(mediaPlayer.getDuration());
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                binding.btnPlay.setBackground(getDrawable(R.drawable.ic_play_circle));
+                seekBarHandler.removeCallbacks(seekBarRunnable);
             }
         });
     }
@@ -60,9 +83,11 @@ public class AudioPlayerActivity extends AppCompatActivity {
         if (!mediaPlayer.isPlaying()){
             mediaPlayer.start();
             binding.btnPlay.setBackground(getDrawable(R.drawable.ic_pause_circle));
+            seekBarHandler.postDelayed(seekBarRunnable,0L);
         }else{
             mediaPlayer.pause();
             binding.btnPlay.setBackground(getDrawable(R.drawable.ic_play_circle));
+            seekBarHandler.removeCallbacks(seekBarRunnable);
         }
     }
 }
