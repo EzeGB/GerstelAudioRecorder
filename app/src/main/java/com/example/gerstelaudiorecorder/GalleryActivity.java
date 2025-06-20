@@ -1,5 +1,6 @@
 package com.example.gerstelaudiorecorder;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -58,7 +59,12 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
 
     @Override
     public void OnItemClickListener(int position) {
-        Toast.makeText(this,"Simple Click",Toast.LENGTH_SHORT).show();
+        AudioRecord audioRecord = records.get(position);
+        Intent intent = new Intent(this, AudioPlayerActivity.class);
+
+        intent.putExtra("filePath",audioRecord.getFilePath());
+        intent.putExtra("fileName",audioRecord.getFilename());
+        startActivity(intent);
     }
 
     @Override
