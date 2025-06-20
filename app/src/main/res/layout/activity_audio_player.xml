@@ -51,7 +51,7 @@
             app:layout_constraintEnd_toStartOf="@id/btnPlay"
             app:layout_constraintStart_toStartOf="parent"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_replay"/>
+            android:src="@drawable/ic_backward"/>
 
         <ImageButton
             android:id="@+id/btnForward"

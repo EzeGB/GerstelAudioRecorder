@@ -44,7 +44,7 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.View
         String strDate = sdf.format(date);
 
         holder.tvFilename.setText(record.getFilename());
-        holder.tvMeta.setText(String.format("%s%s", record.getDuration(), strDate));
+        holder.tvMeta.setText(String.format("%s %s", record.getDuration(), strDate));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements  View.OnLongClickListener, View.OnClickListener {
