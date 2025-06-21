@@ -25,6 +25,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
     Runnable seekBarRunnable;
     Long seekBarDelay = 500L;
     int jumpValue = 5000;
+    float playbackSpeed = 1.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +87,20 @@ public class AudioPlayerActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()-jumpValue);
                 binding.seekBar.setProgress(binding.seekBar.getProgress()-jumpValue);
+            }
+        });
+        binding.chip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (playbackSpeed!=2.0f){
+                    playbackSpeed+=0.5f;
+                    jumpValue+=2500;
+                }else{
+                    playbackSpeed=0.5f;
+                    jumpValue=2500;
+                }
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed));
+                binding.chip.setText(String.format("x %s", playbackSpeed));
             }
         });
 
