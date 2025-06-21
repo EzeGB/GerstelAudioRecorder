@@ -24,6 +24,7 @@ public class AudioPlayerActivity extends AppCompatActivity {
     Handler seekBarHandler;
     Runnable seekBarRunnable;
     Long seekBarDelay = 500L;
+    int jumpValue = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +67,6 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 playPausePlayer();
             }
         });
-
-        playPausePlayer();
-        binding.seekBar.setMax(mediaPlayer.getDuration());
-
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -77,13 +74,32 @@ public class AudioPlayerActivity extends AppCompatActivity {
                 seekBarHandler.removeCallbacks(seekBarRunnable);
             }
         });
+        binding.btnForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()+jumpValue);
+                binding.seekBar.setProgress(binding.seekBar.getProgress()+jumpValue);
+            }
+        });
+        binding.btnBackward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mediaPlayer.seekTo(mediaPlayer.getCurrentPosition()-jumpValue);
+                binding.seekBar.setProgress(binding.seekBar.getProgress()-jumpValue);
+            }
+        });
+
+        playPausePlayer();
+        binding.seekBar.setMax(mediaPlayer.getDuration());
+
+
     }
 
     private void playPausePlayer(){
         if (!mediaPlayer.isPlaying()){
             mediaPlayer.start();
             binding.btnPlay.setBackground(getDrawable(R.drawable.ic_pause_circle));
-            seekBarHandler.postDelayed(seekBarRunnable,0L);
+            seekBarHandler.postDelayed(seekBarRunnable,seekBarDelay);
         }else{
             mediaPlayer.pause();
             binding.btnPlay.setBackground(getDrawable(R.drawable.ic_play_circle));
