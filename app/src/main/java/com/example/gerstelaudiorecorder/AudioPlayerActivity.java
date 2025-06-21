@@ -119,8 +119,6 @@ public class AudioPlayerActivity extends AppCompatActivity {
 
         playPausePlayer();
         binding.seekBar.setMax(mediaPlayer.getDuration());
-
-
     }
 
     private void playPausePlayer(){

@@ -118,9 +118,10 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
             public void onClick(View view) {
                 stopRecording();
                 binding.bottomSheet.bottomSheet.setVisibility(VISIBLE);
-                bottomSheetBehavior.setState(STATE_EXPANDED);
+
                 binding.bottomSheetBG.setVisibility(VISIBLE);
                 binding.bottomSheet.filenameInput.setText(filename);
+                bottomSheetBehavior.setState(STATE_EXPANDED);
             }
         });
         binding.btnList.setOnClickListener(new View.OnClickListener() {
