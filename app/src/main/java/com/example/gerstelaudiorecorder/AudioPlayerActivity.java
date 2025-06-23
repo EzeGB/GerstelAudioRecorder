@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.SeekBar;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -18,6 +20,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.gerstelaudiorecorder.databinding.ActivityAudioPlayerBinding;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class AudioPlayerActivity extends AppCompatActivity {
     ActivityAudioPlayerBinding binding;
@@ -45,6 +48,26 @@ public class AudioPlayerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String filePath = intent.getStringExtra("filePath");
         String fileName = intent.getStringExtra("fileName");
+
+        setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                customOnBackPressed();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this,callback);
+        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
+        binding.tvFilename.setText(fileName);
 
         mediaPlayer = new MediaPlayer();
         try {
@@ -131,5 +154,11 @@ public class AudioPlayerActivity extends AppCompatActivity {
             binding.btnPlay.setBackground(getDrawable(R.drawable.ic_play_circle));
             seekBarHandler.removeCallbacks(seekBarRunnable);
         }
+    }
+    private void customOnBackPressed(){
+        mediaPlayer.stop();
+        mediaPlayer.release();
+        seekBarHandler.removeCallbacks(seekBarRunnable);
+        finish();
     }
 }
