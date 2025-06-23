@@ -20,6 +20,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.gerstelaudiorecorder.databinding.ActivityAudioPlayerBinding;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Objects;
 
 public class AudioPlayerActivity extends AppCompatActivity {
@@ -77,11 +79,14 @@ public class AudioPlayerActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
+        binding.tvTrackDuration.setText(dateFormat(mediaPlayer.getDuration()));
+
         seekBarHandler = new Handler(Looper.getMainLooper());
         seekBarRunnable = new Runnable() {
             @Override
             public void run() {
                 binding.seekBar.setProgress(mediaPlayer.getCurrentPosition());
+                binding.tvTrackProgress.setText(dateFormat(mediaPlayer.getCurrentPosition()));
                 seekBarHandler.postDelayed(seekBarRunnable,seekBarDelay);
             }
         };
@@ -160,5 +165,19 @@ public class AudioPlayerActivity extends AppCompatActivity {
         mediaPlayer.release();
         seekBarHandler.removeCallbacks(seekBarRunnable);
         finish();
+    }
+    private String dateFormat(int duration){
+        int d = duration /1000;
+        int s = d%60;
+        int m = d/60%60;
+        int h = ((d-m*60)/360);
+
+        NumberFormat f = new DecimalFormat("00");
+        String str = m+":"+f.format(s);
+
+        if (h>0){
+            str = h+":"+str;
+        }
+        return str;
     }
 }
