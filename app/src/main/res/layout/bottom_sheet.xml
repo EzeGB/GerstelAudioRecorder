@@ -27,7 +27,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:padding="16dp"
-            />
+            android:inputType="text"
+            android:imeOptions="actionDone"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout

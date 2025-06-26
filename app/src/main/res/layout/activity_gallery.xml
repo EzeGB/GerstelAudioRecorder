@@ -25,6 +25,22 @@
                 android:layout_height="?actionBarSize"
                 app:title="Recordings"/>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintEnabled="false"
+            style="@style/SearchInputStyle">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/searchInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Search audio record"
+                android:inputType="text"
+                android:textColor="?android:textColor"
+                android:textColorHint="?android:textColorHint"
+                android:imeOptions="actionSearch"/>
+        </com.google.android.material.textfield.TextInputLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
