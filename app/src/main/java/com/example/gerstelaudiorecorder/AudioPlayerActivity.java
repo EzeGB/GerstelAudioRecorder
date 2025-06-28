@@ -25,13 +25,13 @@ import java.text.NumberFormat;
 import java.util.Objects;
 
 public class AudioPlayerActivity extends AppCompatActivity {
-    ActivityAudioPlayerBinding binding;
+    private ActivityAudioPlayerBinding binding;
     private MediaPlayer mediaPlayer;
-    Handler seekBarHandler;
-    Runnable seekBarRunnable;
-    Long seekBarDelay = 500L;
-    int jumpValue = 5000;
-    float playbackSpeed = 1.0f;
+    private Handler seekBarHandler;
+    private Runnable seekBarRunnable;
+    private Long seekBarDelay = 500L;
+    private int jumpValue = 5000;
+    private float playbackSpeed = 1.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

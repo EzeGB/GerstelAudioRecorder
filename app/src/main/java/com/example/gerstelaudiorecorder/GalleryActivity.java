@@ -2,6 +2,8 @@ package com.example.gerstelaudiorecorder;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -11,7 +13,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Query;
 import androidx.room.Room;
+
+import com.example.gerstelaudiorecorder.databinding.ActivityGalleryBinding;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +26,21 @@ import java.util.concurrent.Executors;
 
 public class GalleryActivity extends AppCompatActivity implements OnItemClickListener {
 
+    private ActivityGalleryBinding binding;
     private ArrayList<AudioRecord> records;
     private RecordingAdapter myAdapter;
     private AppDatabase database;
+    private TextInputEditText searchInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_gallery);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+
+        binding = ActivityGalleryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -44,6 +55,37 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         fetchAll();
+
+        searchInput = binding.searchInput;
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String query = charSequence.toString();
+                searchDatabase(query);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+    }
+
+    private void searchDatabase(String query) {
+        records.clear();
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(()->{
+            List<AudioRecord> queryResult = database.audioRecordDao().searchDatabase(query);
+            records.addAll(queryResult);
+        });
+        executorService.shutdown();
+
+        runOnUiThread(() -> myAdapter.notifyDataSetChanged());
     }
 
     private void fetchAll(){

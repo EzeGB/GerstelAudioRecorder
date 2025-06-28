@@ -14,17 +14,20 @@ import java.util.List;
 @Dao
 public interface AudioRecordDao {
     @Query("SELECT * FROM audioRecords")
-    public List<AudioRecord> getAll();
+    List<AudioRecord> getAll();
+
+    @Query("SELECT * FROM audioRecords WHERE filename LIKE '%'||:query||'%'")
+    List<AudioRecord> searchDatabase(String query);
 
     @Insert
-    public void insert(AudioRecord... audioRecord);
+    void insert(AudioRecord... audioRecord);
 
     @Delete
-    public void delete(AudioRecord audioRecord);
+    void delete(AudioRecord audioRecord);
 
     @Delete
-    public void delete(AudioRecord[] audioRecords);
+    void delete(AudioRecord[] audioRecords);
 
     @Update
-    public void update(AudioRecord audioRecord);
+    void update(AudioRecord audioRecord);
 }
