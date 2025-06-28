@@ -57,4 +57,10 @@ public class AudioRecord {
     public void setId(int id) {
         this.id = id;
     }
+    public boolean isChecked() {
+        return isChecked;
+    }
+    public void setChecked(boolean checked) {
+        isChecked = checked;
+    }
 }

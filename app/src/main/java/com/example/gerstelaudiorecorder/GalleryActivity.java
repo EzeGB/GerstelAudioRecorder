@@ -102,15 +102,24 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
     @Override
     public void OnItemClickListener(int position) {
         AudioRecord audioRecord = records.get(position);
-        Intent intent = new Intent(this, AudioPlayerActivity.class);
 
-        intent.putExtra("filePath",audioRecord.getFilePath());
-        intent.putExtra("fileName",audioRecord.getFilename());
-        startActivity(intent);
+        if (myAdapter.isEditMode()){
+            AudioRecord selectedRecord = records.get(position);
+            selectedRecord.setChecked(!selectedRecord.isChecked());
+            myAdapter.notifyItemChanged(position);
+        } else {
+            Intent intent = new Intent(this, AudioPlayerActivity.class);
+            intent.putExtra("filePath",audioRecord.getFilePath());
+            intent.putExtra("fileName",audioRecord.getFilename());
+            startActivity(intent);
+        }
     }
 
     @Override
     public void OnLongItemClickListener(int position) {
-        Toast.makeText(this,"Long Click",Toast.LENGTH_SHORT).show();
+        myAdapter.setEditMode(true);
+        AudioRecord selectedRecord = records.get(position);
+        selectedRecord.setChecked(!selectedRecord.isChecked());
+        myAdapter.notifyItemChanged(position);
     }
 }

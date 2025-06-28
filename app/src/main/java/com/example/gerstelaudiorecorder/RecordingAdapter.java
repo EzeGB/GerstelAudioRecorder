@@ -16,8 +16,9 @@ import java.util.List;
 
 public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.ViewHolder> {
 
-    ArrayList<AudioRecord> records;
-    OnItemClickListener listener;
+    private ArrayList<AudioRecord> records;
+    private OnItemClickListener listener;
+    private boolean editMode = false;
     public RecordingAdapter(ArrayList<AudioRecord> records, OnItemClickListener listener){
         this.records=records;
         this.listener=listener;
@@ -45,6 +46,24 @@ public class RecordingAdapter extends RecyclerView.Adapter<RecordingAdapter.View
 
         holder.tvFilename.setText(record.getFilename());
         holder.tvMeta.setText(String.format("%s %s", record.getDuration(), strDate));
+
+        if (editMode){
+            holder.checkBox.setVisibility(View.VISIBLE);
+            holder.checkBox.setChecked(record.isChecked());
+        } else {
+            holder.checkBox.setVisibility(View.GONE);
+            holder.checkBox.setChecked(false);
+        }
+    }
+
+    public boolean isEditMode() {
+        return editMode;
+    }
+    public void setEditMode(boolean editMode) {
+        if (this.editMode != editMode){
+            this.editMode = editMode;
+            notifyDataSetChanged();
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements  View.OnLongClickListener, View.OnClickListener {
