@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +20,7 @@ import androidx.room.Query;
 import androidx.room.Room;
 
 import com.example.gerstelaudiorecorder.databinding.ActivityGalleryBinding;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -34,6 +36,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
     private AppDatabase database;
     private TextInputEditText searchInput;
     private boolean allChecked = false;
+    private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,9 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                 getOnBackPressedDispatcher().onBackPressed();
             }
         });
+
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetGallery);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
         records = new ArrayList<>();
         database = Room.databaseBuilder(this,AppDatabase.class,"audioRecords").build();
@@ -95,6 +101,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 getSupportActionBar().setHomeButtonEnabled(true);
                 binding.editBar.setVisibility(View.GONE);
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
 
                 for (AudioRecord record : records) {
                     record.setChecked(false);
@@ -159,6 +166,8 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         AudioRecord selectedRecord = records.get(position);
         selectedRecord.setChecked(!selectedRecord.isChecked());
         myAdapter.notifyItemChanged(position);
+
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
         if (myAdapter.isEditMode() && binding.editBar.getVisibility() == View.GONE){
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
