@@ -33,6 +33,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
     private RecordingAdapter myAdapter;
     private AppDatabase database;
     private TextInputEditText searchInput;
+    private boolean allChecked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,30 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
 
             }
         });
+
+        binding.btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setHomeButtonEnabled(true);
+                binding.editBar.setVisibility(View.GONE);
+
+                for (AudioRecord record : records) {
+                    record.setChecked(false);
+                }
+                myAdapter.setEditMode(false);
+            }
+        });
+        binding.btnSelectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                allChecked = !allChecked;
+                for (AudioRecord record : records){
+                    record.setChecked(allChecked);
+                }
+                myAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void searchDatabase(String query) {
@@ -134,5 +159,11 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         AudioRecord selectedRecord = records.get(position);
         selectedRecord.setChecked(!selectedRecord.isChecked());
         myAdapter.notifyItemChanged(position);
+
+        if (myAdapter.isEditMode() && binding.editBar.getVisibility() == View.GONE){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setHomeButtonEnabled(false);
+            binding.editBar.setVisibility(View.VISIBLE);
+        }
     }
 }
