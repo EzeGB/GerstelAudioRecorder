@@ -1,5 +1,6 @@
 package com.example.gerstelaudiorecorder;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -110,15 +111,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         binding.btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setHomeButtonEnabled(true);
-                binding.editBar.setVisibility(View.GONE);
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-                for (AudioRecord record : records) {
-                    record.setChecked(false);
-                }
-                myAdapter.setEditMode(false);
+                leaveEditMode();
             }
         });
         binding.btnSelectAll.setOnClickListener(new View.OnClickListener() {
@@ -158,13 +151,15 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                             runOnUiThread(()->{
                                 records.removeAll(Arrays.asList(toDelete));
                                 myAdapter.notifyDataSetChanged();
+                                leaveEditMode();
                             });
                         });
                         executorService.shutdown();
                     }
                 })
-                        .setNegativeButton("Cancel",null)
-                        .show();
+                        .setNegativeButton("Cancel",null);
+                Dialog dialog = builder.create();
+                dialog.show();
             }
         });
     }
@@ -242,6 +237,17 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         }
     }
 
+    public void leaveEditMode(){
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        binding.editBar.setVisibility(View.GONE);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        for (AudioRecord record : records) {
+            record.setChecked(false);
+        }
+        myAdapter.setEditMode(false);
+    }
     public void disableRename(){
         binding.btnEdit.setClickable(false);
         binding.btnEdit.setBackgroundTintList(disabledColor);
