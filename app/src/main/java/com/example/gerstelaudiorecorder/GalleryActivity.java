@@ -1,9 +1,12 @@
 package com.example.gerstelaudiorecorder;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -11,6 +14,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -37,6 +41,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
     private TextInputEditText searchInput;
     private boolean allChecked = false;
     private BottomSheetBehavior<LinearLayout> bottomSheetBehavior;
+    private ColorStateList enabledColor, disabledColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,9 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                 getOnBackPressedDispatcher().onBackPressed();
             }
         });
+
+        enabledColor=obtainColor(android.R.attr.textColorPrimary);
+        disabledColor=obtainColor(android.R.attr.textColorPrimaryDisableOnly);
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetGallery);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -173,6 +181,43 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setHomeButtonEnabled(false);
             binding.editBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void disableRename(){
+        binding.btnEdit.setClickable(false);
+        binding.btnEdit.setBackgroundTintList(disabledColor);
+        binding.tvEdit.setTextColor(disabledColor);
+    }
+    public void disableDelete(){
+        binding.btnDelete.setClickable(false);
+        binding.btnDelete.setBackgroundTintList(disabledColor);
+        binding.tvDelete.setTextColor(disabledColor);
+    }
+
+    public void enableRename(){
+        binding.btnEdit.setClickable(true);
+        binding.btnEdit.setBackgroundTintList(enabledColor);
+        binding.tvEdit.setTextColor(enabledColor);
+    }
+    public void enableDelete(){
+        binding.btnDelete.setClickable(true);
+        binding.btnDelete.setBackgroundTintList(enabledColor);
+        binding.tvDelete.setTextColor(enabledColor);
+    }
+
+    private ColorStateList obtainColor(int myColor){
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = getTheme();
+
+        if (theme.resolveAttribute(myColor,typedValue,true)){
+            return ResourcesCompat.getColorStateList(
+                    getResources(),
+                    typedValue.resourceId,
+                    theme
+            );
+        } else{
+            return null;
         }
     }
 }
