@@ -1,5 +1,6 @@
 package com.example.gerstelaudiorecorder;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
@@ -28,9 +30,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class GalleryActivity extends AppCompatActivity implements OnItemClickListener {
 
@@ -134,6 +138,35 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                 disableRename();
             }
         });
+        binding.btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long numberSelectedRecords = countSelectedRecords();
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setMessage("Are you sure you want to delete "+numberSelectedRecords+" record(s)?");
+
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        AudioRecord [] toDelete = records.stream()
+                                .filter(AudioRecord::isChecked)
+                                .toArray(AudioRecord[]::new);
+
+                        ExecutorService executorService = Executors.newSingleThreadExecutor();
+                        executorService.submit(()->{
+                            database.audioRecordDao().delete(toDelete);
+                            runOnUiThread(()->{
+                                records.removeAll(Arrays.asList(toDelete));
+                                myAdapter.notifyDataSetChanged();
+                            });
+                        });
+                        executorService.shutdown();
+                    }
+                })
+                        .setNegativeButton("Cancel",null)
+                        .show();
+            }
+        });
     }
 
     private void searchDatabase(String query) {
@@ -168,9 +201,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
             selectedRecord.setChecked(!selectedRecord.isChecked());
             myAdapter.notifyItemChanged(position);
 
-            long numberSelectedRecords = records.stream()
-                    .filter(AudioRecord::isChecked)
-                    .count();
+            long numberSelectedRecords = countSelectedRecords();
             switch ((int) numberSelectedRecords){
                 case 0:
                     disableRename();
@@ -246,5 +277,10 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         } else{
             return null;
         }
+    }
+    private long countSelectedRecords(){
+        return records.stream()
+                .filter(AudioRecord::isChecked)
+                .count();
     }
 }
