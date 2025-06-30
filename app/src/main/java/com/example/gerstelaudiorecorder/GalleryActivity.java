@@ -125,6 +125,13 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                     record.setChecked(allChecked);
                 }
                 myAdapter.notifyDataSetChanged();
+
+                if (allChecked){
+                    enableDelete();
+                } else {
+                    disableDelete();
+                }
+                disableRename();
             }
         });
     }
@@ -160,6 +167,23 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
             AudioRecord selectedRecord = records.get(position);
             selectedRecord.setChecked(!selectedRecord.isChecked());
             myAdapter.notifyItemChanged(position);
+
+            long numberSelectedRecords = records.stream()
+                    .filter(AudioRecord::isChecked)
+                    .count();
+            switch ((int) numberSelectedRecords){
+                case 0:
+                    disableRename();
+                    disableDelete();
+                    break;
+                case 1:
+                    enableDelete();
+                    enableRename();
+                    break;
+                default:
+                    enableDelete();
+                    disableRename();
+            }
         } else {
             Intent intent = new Intent(this, AudioPlayerActivity.class);
             intent.putExtra("filePath",audioRecord.getFilePath());
@@ -181,6 +205,9 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setHomeButtonEnabled(false);
             binding.editBar.setVisibility(View.VISIBLE);
+
+            enableDelete();
+            enableRename();
         }
     }
 
