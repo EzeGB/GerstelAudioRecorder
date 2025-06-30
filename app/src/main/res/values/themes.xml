@@ -9,6 +9,8 @@
         <item name="backgroundColor">@color/white</item>
         <item name="android:fillColor">@color/gray</item>
         <item name="itemShapeFillColor">@color/grayDark</item>
+        <item name="android:textColorPrimary">@color/grayDark</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/grayDarkDisabled</item>
     </style>
     <style name="TextLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="android:layout_marginTop">20dp</item>

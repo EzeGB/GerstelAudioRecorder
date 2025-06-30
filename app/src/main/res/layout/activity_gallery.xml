@@ -90,10 +90,14 @@
                 android:id="@+id/btnDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="false"
+                android:backgroundTint="?android:textColorPrimaryDisableOnly"
                 android:background="@drawable/ic_delete_gallery"/>
             <TextView
+                android:id="@+id/tvDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimaryDisableOnly"
                 android:text="Delete"/>
         </LinearLayout>
 
@@ -106,10 +110,14 @@
                 android:id="@+id/btnEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:clickable="false"
+                android:backgroundTint="?android:textColorPrimaryDisableOnly"
                 android:background="@drawable/ic_edit"/>
             <TextView
+                android:id="@+id/tvEdit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="?android:textColorPrimaryDisableOnly"
                 android:text="Edit"/>
         </LinearLayout>
     </LinearLayout>
