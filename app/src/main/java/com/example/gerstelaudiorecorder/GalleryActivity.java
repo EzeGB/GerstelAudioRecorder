@@ -171,7 +171,37 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                 builder.setView(dialogView);
                 AlertDialog dialog = builder.create();
 
+                AudioRecord record = records.stream().filter(AudioRecord::isChecked).findAny().get();
+                TextInputEditText textInput = (TextInputEditText) dialogView.findViewById(R.id.filenameInput);
+                textInput.setText(record.getFilename());
 
+                dialogView.findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String input = textInput.getText().toString();
+                        if (input.isEmpty()){
+                            Toast.makeText(view.getContext(),"A name is required",Toast.LENGTH_LONG).show();
+                        }else{
+                            record.setFilename(input);
+                            ExecutorService executorService = Executors.newSingleThreadExecutor();
+                            executorService.submit(()->{
+                                database.audioRecordDao().update(record);
+                                runOnUiThread(()->{
+                                    myAdapter.notifyItemChanged(records.indexOf(record));
+                                    dialog.dismiss();
+                                    leaveEditMode();
+                                });
+                            });
+                            executorService.shutdown();
+                        }
+                    }
+                });
+                dialogView.findViewById(R.id.btnCancel).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
 
                 dialog.show();
             }
@@ -256,6 +286,7 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
         getSupportActionBar().setHomeButtonEnabled(true);
         binding.editBar.setVisibility(View.GONE);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         for (AudioRecord record : records) {
             record.setChecked(false);

@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet);
         bottomSheetBehavior.setPeekHeight(0);
+        bottomSheetBehavior.setState(STATE_HIDDEN);
         bottomSheetBehavior.setState(STATE_COLLAPSED);
         binding.bottomSheet.bottomSheet.setVisibility(GONE);
 
@@ -287,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements Timer.OnTimerTick
 
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(()->{
+            bottomSheetBehavior.setState(STATE_HIDDEN);
             bottomSheetBehavior.setState(STATE_COLLAPSED);
         },100);
     }
