@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -159,6 +160,19 @@ public class GalleryActivity extends AppCompatActivity implements OnItemClickLis
                 })
                         .setNegativeButton("Cancel",null);
                 Dialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+        binding.btnEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.rename_layout,null);
+                builder.setView(dialogView);
+                AlertDialog dialog = builder.create();
+
+
+
                 dialog.show();
             }
         });
